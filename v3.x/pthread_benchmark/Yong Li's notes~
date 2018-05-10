@@ -1,0 +1,45 @@
+
+*. [keypoints] 
+src/trace_streams.tup	Lists the names of each print stream
+src/trace.cc	Some setup implementation and initialization
+src/trace.h	Defines all the high level interfaces for the tracing system
+src/gpgpu-sim/shader_trace.h	Defines some convenient prints for debugging a specific shader core
+
+
+*. [Linux environment variables]
+export PTX_SIM_USE_PTX_FILE=<non-empty-string> override PTX embedded in the binary and revert to old strategy of looking for *.ptx files (good for hand-tweaking PTX)
+export PTX_SIM_KERNELFILE=<filename> use this to specify the name of the PTX file
+
+*. main.cpp in pthread_benchmark, which launch the application and initilize the fake (gpgpu-sim) cuda-sim/gpu, which then linked to the shared libraries in the build folder
+
+*. 
+Clock Cycle Count (clockCycleCount)
+Memory Efficiency (memoryEfficiency)
+Branch Divergence (branchDivergence)
+Activity Factor (activityFactor)
+Barrier Count (barrierCount)
+
+*. threadIdx.x -> 
+blockIdx.x ->
+blockDimIdx.x -> 
+.reg creates a register
+bar -> barrier 
+bra -> branch
+
+[https://www.cs.uaf.edu/2011/spring/cs641/lecture/03_03_CUDA_PTX.html , http://docs.nvidia.com/cuda/parallel-thread-execution/index.html]  
+
+*. storage space, memory bandwidth
+
+*. shader_core_ctx::cycle->fetch()
+
+*. class shd_warp_t
+
+*. shader_core_ctx::cycle->execute()
+
+*. issue()
+
+*. Read operands
+
+*. pthread created -> gpgpusim_entrypoint.cc:gpgpu_sim_thread_concurrent 
+
+*. gpgpusim_entrypoint.cc:gpgpu_ptx_sim_init_perf
