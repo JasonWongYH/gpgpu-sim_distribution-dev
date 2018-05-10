@@ -1,0 +1,273 @@
+
+Fatbin elf code:
+================
+arch = sm_20
+code version = [1,7]
+producer = cuda
+host = linux
+compile_size = 64bit
+
+64bit elf: type=2, abi=7, sm=20, toolkit=75, flags = 0x140514
+Sections:
+Index Offset   Size ES Align   Type   Flags Link     Info Name
+    1     40     e7  0  1    STRTAB       0    0        0 .shstrtab
+    2    127    3a3  0  1    STRTAB       0    0        0 .strtab
+    3    4d0    168 18  8    SYMTAB       0    2        d .symtab
+    4    638     24  0  4 CUDA_INFO       0    3        0 .nv.info
+    5    65c     58  0  4 CUDA_INFO       0    3        9 .nv.info._Z5haxpyi6__halfPKS_PS_
+    6    6b8     90 10  8       REL       0    3        8 .rel.nv.constant14
+    7    748     38  0  4  PROGBITS       2    0        9 .nv.constant0._Z5haxpyi6__halfPKS_PS_
+    8    780     48  0  4  PROGBITS       2    0        0 .nv.constant14
+    9    7c8     f8  0  4  PROGBITS       6    3  b00000e .text._Z5haxpyi6__halfPKS_PS_
+    a    8c0    1c8  0  8    NOBITS       3    0        0 .nv.global
+
+.section .strtab
+
+.section .shstrtab
+
+.section .symtab
+ index           value           size      info    other  shndx    name  
+   0               0               0        0        0      0     (null)
+   1               0               0        3        0      9     .text._Z5haxpyi6__halfPKS_PS_
+   2               0               0        3        0      7     .nv.constant0._Z5haxpyi6__halfPKS_PS_
+   3               0               0        3        0      a     .nv.global
+   4              40              32        1        0      a     _ZTVSt9basic_iosIcSt11char_traitsIcEE
+   5               0               0        3        0      8     .nv.constant14
+   6              24               8        1        0      a     _ZTTSi
+   7              72             128        1        0      a     _ZTVSt15basic_streambufIcSt11char_traitsIcEE
+   8             200             128        1        0      a     _ZTVSt13basic_filebufIcSt11char_traitsIcEE
+   9               8               8        1        0      a     _ZTTSt14basic_ifstreamIcSt11char_traitsIcEE
+  10              32               8        1        0      a     _ZTTSo
+  11              16               8        1        0      a     _ZTTSd
+  12             328             128        1        0      a     _ZTVSt15basic_stringbufIcSt11char_traitsIcESaIcEE
+  13               0               8        1        0      a     _ZTTSt18basic_stringstreamIcSt11char_traitsIcESaIcEE
+  14               0             248       12       10      9     _Z5haxpyi6__halfPKS_PS_
+
+
+.nv.constant0._Z5haxpyi6__halfPKS_PS_
+0x00000000  0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  
+
+
+.nv.constant14
+0x00000000  0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  0x00000000  0x00000000  0x00000000  
+0x00000000  
+
+.section .rel.nv.constant14	REL
+40    _ZTTSo    R_NV_64
+8    _ZTTSi    R_NV_64
+56    _ZTVSt15basic_stringbufIcSt11char_traitsIcESaIcEE    R_NV_64
+24    _ZTVSt13basic_filebufIcSt11char_traitsIcEE    R_NV_64
+48    _ZTTSd    R_NV_64
+16    _ZTVSt15basic_streambufIcSt11char_traitsIcEE    R_NV_64
+32    _ZTTSt14basic_ifstreamIcSt11char_traitsIcEE    R_NV_64
+0    _ZTVSt9basic_iosIcSt11char_traitsIcEE    R_NV_64
+64    _ZTTSt18basic_stringstreamIcSt11char_traitsIcESaIcEE    R_NV_64
+
+
+.nv.info
+	<0x1>
+	Attribute:	EIATTR_MAX_STACK_SIZE
+	Format:	EIFMT_SVAL
+	Value:	0xe 0x0 
+	<0x2>
+	Attribute:	EIATTR_MIN_STACK_SIZE
+	Format:	EIFMT_SVAL
+	Value:	function: _Z5haxpyi6__halfPKS_PS_(0xe)	min stack size: 0x0
+	<0x3>
+	Attribute:	EIATTR_FRAME_SIZE
+	Format:	EIFMT_SVAL
+	Value:	function: _Z5haxpyi6__halfPKS_PS_(0xe)	frame size: 0x0
+
+
+.nv.info._Z5haxpyi6__halfPKS_PS_
+	<0x1>
+	Attribute:	EIATTR_PARAM_CBANK
+	Format:	EIFMT_SVAL
+	Value:	0x2 0x180020 
+	<0x2>
+	Attribute:	EIATTR_CBANK_PARAM_SIZE
+	Format:	EIFMT_HVAL
+	Value:	0x18
+	<0x3>
+	Attribute:	EIATTR_KPARAM_INFO
+	Format:	EIFMT_SVAL
+	Value:	Index : 0x0	Ordinal : 0x3	Offset  : 0x10	Size    : 0x8
+		Pointee's logAlignment : 0x0	Space : 0x0	cbank : 0x1f	Parameter Space : CBANK	
+	<0x4>
+	Attribute:	EIATTR_KPARAM_INFO
+	Format:	EIFMT_SVAL
+	Value:	Index : 0x0	Ordinal : 0x2	Offset  : 0x8	Size    : 0x8
+		Pointee's logAlignment : 0x0	Space : 0x0	cbank : 0x1f	Parameter Space : CBANK	
+	<0x5>
+	Attribute:	EIATTR_KPARAM_INFO
+	Format:	EIFMT_SVAL
+	Value:	Index : 0x0	Ordinal : 0x1	Offset  : 0x4	Size    : 0x2
+		Pointee's logAlignment : 0x0	Space : 0x0	cbank : 0x1f	Parameter Space : CBANK	
+	<0x6>
+	Attribute:	EIATTR_KPARAM_INFO
+	Format:	EIFMT_SVAL
+	Value:	Index : 0x0	Ordinal : 0x0	Offset  : 0x0	Size    : 0x4
+		Pointee's logAlignment : 0x0	Space : 0x0	cbank : 0x1f	Parameter Space : CBANK	
+	<0x7>
+	Attribute:	EIATTR_CRS_STACK_SIZE
+	Format:	EIFMT_SVAL
+	Value:	0x180 
+
+
+.text._Z5haxpyi6__halfPKS_PS_
+bar = 0	reg = 11	lmem=0	smem=0
+0x00005de4  0x28004404  0x94001c04  0x2c000000  
+0x84009c04  0x2c000000  0x20011ca3  0x20044000  
+0x93f01c46  0x14000000  0x8041dc23  0x1b0e4000  
+0x000001e7  0x80000000  0x50009de4  0x28004000  
+0x00a1dc04  0x10000000  0x08029de2  0x18000000  
+0x20201ca3  0x50004000  0x00001de4  0x40000000  
+0x00001de4  0x40000000  0x00001de4  0x40000000  
+0x00001de4  0x40000000  0x00001de4  0x40000000  
+0xa0421ca3  0x20158000  0xb0425ce3  0x20948000  
+0xc0409ca3  0x20158000  0x00819c45  0x84000000  
+0xd040dce3  0x20948000  0x00411c03  0x48000000  
+0x00215c45  0x84000000  0x8041dc23  0x188e4000  
+0x18a19c04  0x10000000  0x14a15c04  0x10000000  
+0x18715c00  0x300a0000  0x15115c04  0x10000000  
+0x00215c45  0x94000000  0x400001e7  0x4003fffe  
+0x00001de7  0x80000000  
+
+	code for sm_20
+		Function : _Z5haxpyi6__halfPKS_PS_
+	.headerflags    @"EF_CUDA_SM20 EF_CUDA_PTX_SM(EF_CUDA_SM20)"
+        /*0000*/         MOV R1, c[0x1][0x100];                      /* 0x2800440400005de4 */
+        /*0008*/         S2R R0, SR_CTAID.X;                         /* 0x2c00000094001c04 */
+        /*0010*/         S2R R2, SR_TID.X;                           /* 0x2c00000084009c04 */
+        /*0018*/         IMAD R4, R0, c[0x0][0x8], R2;               /* 0x2004400020011ca3 */
+        /*0020*/         LDC.U16 R0, c[0x0][0x24];                   /* 0x1400000093f01c46 */
+        /*0028*/         ISETP.GE.AND P0, PT, R4, c[0x0][0x20], PT;  /* 0x1b0e40008041dc23 */
+        /*0030*/     @P0 EXIT;                                       /* 0x80000000000001e7 */
+        /*0038*/         MOV R2, c[0x0][0x14];                       /* 0x2800400050009de4 */
+        /*0040*/         F2F.F32.F16 R7, R0;                         /* 0x1000000000a1dc04 */
+        /*0048*/         MOV32I R10, 0x2;                            /* 0x1800000008029de2 */
+        /*0050*/         IMUL R0, R2, c[0x0][0x8];                   /* 0x5000400020201ca3 */
+        /*0058*/         NOP;                                        /* 0x4000000000001de4 */
+        /*0060*/         NOP;                                        /* 0x4000000000001de4 */
+        /*0068*/         NOP;                                        /* 0x4000000000001de4 */
+        /*0070*/         NOP;                                        /* 0x4000000000001de4 */
+        /*0078*/         NOP;                                        /* 0x4000000000001de4 */
+        /*0080*/         IMAD R8.CC, R4, R10, c[0x0][0x28];          /* 0x20158000a0421ca3 */
+        /*0088*/         IMAD.HI.X R9, R4, R10, c[0x0][0x2c];        /* 0x20948000b0425ce3 */
+        /*0090*/         IMAD R2.CC, R4, R10, c[0x0][0x30];          /* 0x20158000c0409ca3 */
+        /*0098*/         LD.E.U16 R6, [R8];                          /* 0x8400000000819c45 */
+        /*00a0*/         IMAD.HI.X R3, R4, R10, c[0x0][0x34];        /* 0x20948000d040dce3 */
+        /*00a8*/         IADD R4, R4, R0;                            /* 0x4800000000411c03 */
+        /*00b0*/         LD.E.U16 R5, [R2];                          /* 0x8400000000215c45 */
+        /*00b8*/         ISETP.LT.AND P0, PT, R4, c[0x0][0x20], PT;  /* 0x188e40008041dc23 */
+        /*00c0*/         F2F.F32.F16 R6, R6;                         /* 0x1000000018a19c04 */
+        /*00c8*/         F2F.F32.F16 R5, R5;                         /* 0x1000000014a15c04 */
+        /*00d0*/         FFMA R5, R7, R6, R5;                        /* 0x300a000018715c00 */
+        /*00d8*/         F2F.F16.F32 R5, R5;                         /* 0x1000000015115c04 */
+        /*00e0*/         ST.E.U16 [R2], R5;                          /* 0x9400000000215c45 */
+        /*00e8*/     @P0 BRA 0x80;                                   /* 0x4003fffe400001e7 */
+        /*00f0*/         EXIT;                                       /* 0x8000000000001de7 */
+		........................................
+
+
+
+Fatbin ptx code:
+================
+arch = sm_20
+code version = [4,3]
+producer = cuda
+host = linux
+compile_size = 64bit
+compressed
+
+
+
+
+
+
+
+
+.version 4.3
+.target sm_20
+.address_size 64
+
+
+.global .align 8 .b8 _ZTVSt9basic_iosIcSt11char_traitsIcEE[32];
+.global .align 8 .b8 _ZTTSi[8];
+.global .align 8 .b8 _ZTVSt15basic_streambufIcSt11char_traitsIcEE[128];
+.global .align 8 .b8 _ZTVSt13basic_filebufIcSt11char_traitsIcEE[128];
+.global .align 8 .b8 _ZTTSt14basic_ifstreamIcSt11char_traitsIcEE[8];
+.global .align 8 .b8 _ZTTSo[8];
+.global .align 8 .b8 _ZTTSd[8];
+.global .align 8 .b8 _ZTVSt15basic_stringbufIcSt11char_traitsIcESaIcEE[128];
+.global .align 8 .b8 _ZTTSt18basic_stringstreamIcSt11char_traitsIcESaIcEE[8];
+
+.visible .entry _Z5haxpyi6__halfPKS_PS_(
+.param .u32 _Z5haxpyi6__halfPKS_PS__param_0,
+.param .align 2 .b8 _Z5haxpyi6__halfPKS_PS__param_1[2],
+.param .u64 _Z5haxpyi6__halfPKS_PS__param_2,
+.param .u64 _Z5haxpyi6__halfPKS_PS__param_3
+)
+{
+.reg .pred %p<3>;
+.reg .b16 %rs<7>;
+.reg .f32 %f<5>;
+.reg .b32 %r<11>;
+.reg .b64 %rd<8>;
+
+
+ld.param.u32 %r6, [_Z5haxpyi6__halfPKS_PS__param_0];
+ld.param.u16 %rs2, [_Z5haxpyi6__halfPKS_PS__param_1];
+ld.param.u64 %rd3, [_Z5haxpyi6__halfPKS_PS__param_2];
+ld.param.u64 %rd4, [_Z5haxpyi6__halfPKS_PS__param_3];
+mov.u32 %r7, %ctaid.x;
+mov.u32 %r1, %ntid.x;
+mov.u32 %r8, %tid.x;
+mad.lo.s32 %r10, %r7, %r1, %r8;
+setp.ge.s32	%p1, %r10, %r6;
+@%p1 bra BB0_3;
+
+cvta.to.global.u64 %rd1, %rd4;
+cvta.to.global.u64 %rd2, %rd3;
+mov.u32 %r9, %nctaid.x;
+mul.lo.s32 %r3, %r9, %r1;
+
+BB0_2:
+
+	{ cvt.f32.f16 %f1, %rs2;}
+
+
+	mul.wide.s32 %rd5, %r10, 2;
+add.s64 %rd6, %rd2, %rd5;
+ld.global.u16 %rs4, [%rd6];
+
+	{ cvt.f32.f16 %f2, %rs4;}
+
+
+	add.s64 %rd7, %rd1, %rd5;
+ld.global.u16 %rs5, [%rd7];
+
+	{ cvt.f32.f16 %f3, %rs5;}
+
+
+	fma.rn.f32 %f4, %f1, %f2, %f3;
+
+	{ cvt.rn.f16.f32 %rs6, %f4;}
+
+
+	st.global.u16 [%rd7], %rs6;
+add.s32 %r10, %r10, %r3;
+setp.lt.s32	%p2, %r10, %r6;
+@%p2 bra BB0_2;
+
+BB0_3:
+ret;
+}
+
+

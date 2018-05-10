@@ -1,0 +1,76 @@
+#https://sourceware.org/gdb/onlinedocs/gdb/Threads.html 
+#run by Rachata to get keypoints logged 
+
+set print thread-events off
+set logging file gdb_log
+set logging on
+set breakpoint pending on
+set print symbol-filename on
+break cuda_runtime_api.cc:findPTXSection
+break cuda_runtime_api.cc:extract_code_using_cuobjdump
+break cuda_runtime_api.cc:cuobjdumpParseBinary
+break cuda_runtime_api.cc:addCuobjdumpSection
+break ptx_loader.cc:gpgpu_ptx_sim_load_ptx_from_string
+break cuda_runtime_api.cc:1488
+break cuda-sim.cc:read_sim_environment_variables
+break cuda_runtime_api.cc:findPTXSectionInList
+break cuda_runtime_api.cc:1418
+break ptx_loader.cc:gpgpu_ptx_sim_load_ptx_from_string
+break cuda-sim.cc:gpgpu_cuda_ptx_sim_main_func
+break instructions.cc:add_impl
+break instructions.cc:mul_impl
+break cuda-sim.cc:ptx_thread_info::ptx_exec_inst
+break instructions.cc:ptx_thread_info::get_operand_value
+break gpu-sim.cc:shader_core_ctx::cycle
+
+#allocates warp_inst_t to a free operand collector unit
+#read requests for all source operands 
+#corresponding bank queues in the arbitrator
+
+break shader.cc:opndcoll_rfu_t::allocate_cu
+break abstract_hardware_model.cc:warp_inst_t::generate_mem_accesses
+break abstract_hardware_model.cc:warp_inst_t::execute_warp_inst_t
+break abstract_hardware_model.cc:warp_inst_t::updateSIMTStack
+
+#ldst_unit, simd_function_unit, shd_warp_t, op_t operand data, allocation_t how often and when the status changes, arbiter_t arbitrator
+
+break ptx_parser.cc:add_instruction
+break ptx_parser.cc:end_function
+break ptx_parser.cc:add_variables
+break ptx_parser.cc:add_identifier
+break ptx_parser.cc:add_pred
+break ptx_parser.cc:add_opcode
+break ptx_parser.cc:add_memory_operand
+
+#see the nearby code setting up *pI
+
+break instructions.cc:add_impl
+break instructions.cc:mul_impl
+break instructions.cc:mad_def
+break instructions.cc:cvt_impl
+
+#this is where the assert failed 3 May 2018 
+#break instructions.cc:2144
+#type_info_key::type_decode 
+
+break ptx_ir.cc:type_info_key::type_decode
+
+#g_last_symbol = g_current_symbol_table->add_variable(identifier,type,num_bits/8,g_filename,ptx_lineno)
+#break ptx_parser.cc:413
+#see debug.cc for commands and ptx features
+
+break debug.cc:gpgpu_sim::gpgpu_debug
+break instructions.cc:ptx_thread_info::set_operand_value
+
+#5 May 2018 (ptx debugger) tweak , work backwards from printf statements in the simulation console to understand the micro-architecture augmented by docs , a[i]=a[i]+0;a[i]=a[i]*1; to see cvt_impl flows , mail Tor , mail MO , mail Rachata on cudaMemcpy and cudaLaunch , work out how to model __hfma2 and __hfma , get SASS output of __hfma2 and __hfma , understand ptx_reg_t | ptx_instruction etc and dig into keypoints
+
+#setp.lt.s32 p, i, n; //p=(i<n)
+#@p add.s32 j, j, 1; 
+
+#break foo if x>0
+ #commands
+ #silent
+ #printf "x is %d\n",x
+ #cont
+ #end
+

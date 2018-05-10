@@ -1,0 +1,2 @@
+$LLVM_CLANG_BIN/clang++ -w -fno-rtti `$LLVM_CLANG_BIN/llvm-config --cxxflags` $1.cpp -lclangAST -lclangASTMatchers -lclangAnalysis -lclangBasic -lclangDriver -lclangEdit -lclangFrontend -lclangFrontendTool -lclangLex -lclangParse -lclangSema -lclangEdit -lclangRewrite -lclangRewriteFrontend -lclangStaticAnalyzerFrontend -lclangStaticAnalyzerCheckers -lclangStaticAnalyzerCore -lclangSerialization -lclangToolingCore -lclangTooling -lclangFormat `$LLVM_CLANG_BIN/llvm-config --ldflags --libs --system-libs` -o $1
+

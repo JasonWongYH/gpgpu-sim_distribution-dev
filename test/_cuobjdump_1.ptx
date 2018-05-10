@@ -1,0 +1,85 @@
+
+
+
+
+
+
+
+.version 4.3
+.target sm_20
+.address_size 64
+
+
+.global .align 8 .b8 _ZTVSt9basic_iosIcSt11char_traitsIcEE[32];
+.global .align 8 .b8 _ZTTSi[8];
+.global .align 8 .b8 _ZTVSt15basic_streambufIcSt11char_traitsIcEE[128];
+.global .align 8 .b8 _ZTVSt13basic_filebufIcSt11char_traitsIcEE[128];
+.global .align 8 .b8 _ZTTSt14basic_ifstreamIcSt11char_traitsIcEE[8];
+.global .align 8 .b8 _ZTTSo[8];
+.global .align 8 .b8 _ZTTSd[8];
+.global .align 8 .b8 _ZTVSt15basic_stringbufIcSt11char_traitsIcESaIcEE[128];
+.global .align 8 .b8 _ZTTSt18basic_stringstreamIcSt11char_traitsIcESaIcEE[8];
+
+.visible .entry _Z5haxpyi6__halfPKS_PS_(
+.param .u32 _Z5haxpyi6__halfPKS_PS__param_0,
+.param .align 2 .b8 _Z5haxpyi6__halfPKS_PS__param_1[2],
+.param .u64 _Z5haxpyi6__halfPKS_PS__param_2,
+.param .u64 _Z5haxpyi6__halfPKS_PS__param_3
+)
+{
+.reg .pred %p<3>;
+.reg .b16 %rs<7>;
+.reg .f32 %f<5>;
+.reg .b32 %r<11>;
+.reg .b64 %rd<8>;
+
+
+ld.param.u32 %r6, [_Z5haxpyi6__halfPKS_PS__param_0];
+ld.param.u16 %rs2, [_Z5haxpyi6__halfPKS_PS__param_1];
+ld.param.u64 %rd3, [_Z5haxpyi6__halfPKS_PS__param_2];
+ld.param.u64 %rd4, [_Z5haxpyi6__halfPKS_PS__param_3];
+mov.u32 %r7, %ctaid.x;
+mov.u32 %r1, %ntid.x;
+mov.u32 %r8, %tid.x;
+mad.lo.s32 %r10, %r7, %r1, %r8;
+setp.ge.s32	%p1, %r10, %r6;
+@%p1 bra BB0_3;
+
+cvta.to.global.u64 %rd1, %rd4;
+cvta.to.global.u64 %rd2, %rd3;
+mov.u32 %r9, %nctaid.x;
+mul.lo.s32 %r3, %r9, %r1;
+
+BB0_2:
+
+	{ cvt.f32.f16 %f1, %rs2;}
+
+
+	mul.wide.s32 %rd5, %r10, 2;
+add.s64 %rd6, %rd2, %rd5;
+ld.global.u16 %rs4, [%rd6];
+
+	{ cvt.f32.f16 %f2, %rs4;}
+
+
+	add.s64 %rd7, %rd1, %rd5;
+ld.global.u16 %rs5, [%rd7];
+
+	{ cvt.f32.f16 %f3, %rs5;}
+
+
+	fma.rn.f32 %f4, %f1, %f2, %f3;
+
+	{ cvt.rn.f16.f32 %rs6, %f4;}
+
+
+	st.global.u16 [%rd7], %rs6;
+add.s32 %r10, %r10, %r3;
+setp.lt.s32	%p2, %r10, %r6;
+@%p2 bra BB0_2;
+
+BB0_3:
+ret;
+}
+
+

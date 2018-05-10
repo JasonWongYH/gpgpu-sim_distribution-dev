@@ -1,0 +1,1002 @@
+Searching 972 files for "allocator" (case sensitive, whole word)
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/shader.cc:
+  658                          nbytes = (m_config->m_L1I_config.get_line_sz()-offset_in_block);
+  659  
+  660:                     // TODO: replace with use of allocator
+  661                      // mem_fetch *mf = m_mem_fetch_allocator->alloc()
+  662                      mem_access_t acc(INST_ACC_R,ppc,nbytes,false);
+  ...
+ 2560     }
+ 2561  
+ 2562:    ///// wavefront allocator from booksim... --->
+ 2563     
+ 2564     // Loop through diagonals of request matrix
+
+Searching 6757 files for "__hfma" (case sensitive, whole word)
+
+/usr/local/cuda-9.1/doc/pdf/CUDA_Math_API.pdf:
+    <binary>
+
+/usr/local/cuda-9.1/include/cuda_fp16.h:
+ 1389  * a, \p b, and \p c.
+ 1390  */
+ 1391: __CUDA_FP16_DECL__ __half __hfma(const __half a, const __half b, const __half c);
+ 1392  /**
+ 1393  * \ingroup CUDA_MATH__HALF_ARITHMETIC
+
+/usr/local/cuda-9.1/include/cuda_fp16.hpp:
+ 1285     return val; \
+ 1286  } while(0)
+ 1287: __CUDA_FP16_DECL__ __half __hfma(const __half a, const __half b, const __half c)
+ 1288  {
+ 1289      __TERNARY_OP_HALF_MACRO(fma.rn);
+
+/home/j/code/gpgpu-sim_distribution-dev/test/cuda_mixedPrecision/float2half/float2half.cu:
+   24   for (int i = start; i < n; i+= stride) {
+   25       //y[i] = __float2half(a) * __float2half(x[i]) + y[i]; // error : __half * __half is not supported
+   26:      y[i] = __hfma(__float2half(a), __float2half(x[i]), y[i]);
+   27   }
+   28  }
+
+/home/j/code/gpgpu-sim_distribution-dev/test/float2half.cu:
+   24   for (int i = start; i < n; i+= stride) {
+   25       //y[i] = __float2half(a) * __float2half(x[i]) + y[i]; // error : __half * __half is not supported
+   26:      y[i] = __hfma(__float2half(a), __float2half(x[i]), y[i]);
+   27   }
+   28  }
+
+/home/j/code/gpgpu-sim_distribution-dev/test/haxpy.cu:
+   28   // first thread handles singleton for odd arrays
+   29    if (start == 0 && (n%2))
+   30:    y[n-1] = __hfma(a, x[n-1], y[n-1]);   
+   31  #else
+   32    for (int i = start; i < n; i+= stride) {
+
+/home/j/code/gpgpu-sim_distribution-dev/test/haxpy_original.cu:
+   37   // first thread handles singleton for odd arrays
+   38    if (start == 0 && (n%2))
+   39:    y[n-1] = __hfma(a, x[n-1], y[n-1]);   
+   40  
+   41  #else
+
+/home/j/code/gpgpu-sim_distribution-dev/test/keypoints:
+   63  break instructions.cc:ptx_thread_info::set_operand_value
+   64  
+   65: #5 May 2018 (ptx debugger) tweak , work backwards from printf statements in the simulation console to understand the micro-architecture augmented by manual | Yong Li | Kaichun Mo , a[i]=a[i]+0;a[i]=a[i]*1; to see cvt_impl flows , reply to Jin Wang and Hyesoon , mail Tor , mail MO , mail Rachata on cudaMemcpy and cudaLaunch , work out how to model __hfma2 and __hfma , get SASS output of __hfma2 and __hfma , understand ptx_reg_t | ptx_instruction etc and dig into keypoints
+   66  
+   67  #setp.lt.s32 p, i, n; //p=(i<n)
+
+9 matches across 8 files
+
+
+/home/j/code/gpgpu-sim_distribution-dev/CHANGES:
+    3  - Support for running regression tests using Travis
+    4  - Support added for CUDA dynamic parallelism (courtesy of Jin Wang from Georgia Tech)
+    5: - Added a parameter to the cache configuration to configure the set index 
+    6:   function. Added a hash set index function to the Fermi L1 data cache for 
+    7:   the two default cache sizes, 16KB/48KB with 32/64 sets.
+    8  - Added support for named barriers.
+    9  - Added support for bar.arrive and bar.red instructions.
+   ..
+   30  - Added NVIDIA Quadro FX5600 GPGPU-Sim and GPUWattch configuration files.
+   31  - Added cache_stats class to record all memory accesses and access outcomes 
+   32:   for each cache. Switched from the legacy cache statistics recorded in 
+   33:   the tag_array to the cache access functions. Updated the cache_statistic 
+   34    printing - providing a more meaningful breakdown. Cleaned up power_stats.cc/h
+   35:   to reflect the changes in the cache statistics.
+   36  - Adding support for cudaFuncSetCacheConfig API, that allows changing the 
+   37    L1 Cache and Shared Memory configurations across kernels. The support 
+   38    enables the user to specify two more configurations (Preferred L1) or
+   39    (Preferred Shared Memory) besides the default config. If the
+   40:   cudaFuncSetCacheConfig API is used to set the cache configuration
+   41    of a specific kernel to either of these configuration (cudaFuncCachePreferShared,
+   42:   cudaFuncCachePreferL1), the simulator will change the cache configuration
+   43    at kernel launch accordingly, if there is no alternative configurations
+   44    provided to the simulator it will use the default configurations with a 
+   ..
+   57    (MICRO 2012).
+   58  - Some whitespace cleanup.
+   59: - Adding an option to force global memory access to skip L1 data cache, while
+   60:   local memory accesses can still be cached in L1 data cache.  This feature can
+   61    be used to emulate the behavior of '-Xptxas -dlcm=cg'.  
+   62  - Redesigned the memory partition microarchitecture model to allow multiple L2
+   63:   cache banks (sub partitions) in each memory partition.  Each memory partition
+   64:   contains a single DRAM scheduler, and one or more L2 cache banks.  Each L2
+   65:   cache bank has an independent port to the interconnection network.  The
+   66    address decoder is extended to use the DRAM bank ID to assign the L2 banks
+   67    within each memory partition.  The configuration files are changes to have a
+   68    larger DRAM return queue to allow the credit-based arbiter between the sub
+   69    partitions and the DRAM scheduler to tolerate the minimum DRAM latency.  
+   70: - Added a bandwidth model to throttle the cache hit bandwidth.  Now accesses
+   71:   that exceed the data port width (but still fit within a cache line) will
+   72:   occupy the cache for multiple cycles.  This allows us to decouple the L2
+   73:   cache bandwidth from the interconnect network port bandwidth.  
+   74  - Updated configurations for Geforce GTX 480 and Tesla C2050 to have two
+   75:   sub-partitions in every memory partition.  The L2 cache bank in each
+   76:   sub-partition has half the capacity of the original L2 cache bank.  Each L2
+   77:   cache bank is configured to access at most 32B/cycle.  With twice the number
+   78    of connections to the memory partitions, the interconnection network now runs
+   79    at half of its original speed. 
+   ..
+  108      - Fix for Bug 63 - Changed bk[i]->n_idle++; to bk[j]->n_idle++; in
+  109        dram_t::cycle(). 
+  110:     - Fixed the segmentation faults that occur when L2 cache is diabled.  The
+  111        bug was introduced when GPUWattch was integrated into GPGPU-Sim. 
+  112:     - Fixed the deadlock that occurs when L1 cache is configured with
+  113        write-back, write-allocate policy.  The fix involves generating different
+  114        types of write-allocation requests for L1 and L2 caches, so that
+  115:       write-allocation requests from L1 cache are not consumed by the L2 cache. 
+  116      - Fixed a bug that caused allocated local and stack memory to be not correctly
+  117        aligned.
+  ...
+  124  - Added kernel name and launch uids to performance statistics log.
+  125  - Added l2_cache_config class to extend baseline cache_config. Allows for
+  126:   custom, L2 cache specific functions (such as tag/set index
+  127    generation functions).  
+  128  - For clarity, renaming '-gpgpu_dram_sched_queue_size' to
+  ...
+  137    another has taken it's place)
+  138    have the same warp_id but different dynamic_warp_ids.
+  139: - Added extensions to the cache class hierarchy to allow for the use of custom
+  140    tag_array objects.
+  141  - Added some additional const-correctness
+  142  - Added a check in cache_config to prevent configuration that specifies a
+  143:   writeback cache with allocation-on-fill policy.  The current implementation
+  144:   of the allocation-on-fill policy assumes a non-writeback cache and never
+  145    generates any writeback traffic.  Even if the writeback traffic is generated,
+  146:   the configuration (writeback cache + allocation-on-fill) will inevitably lead
+  147    to deadlock.  
+  148  - Added the ability plot stats with an increasing number of data points in
+  ...
+  173        correctly independent of the system locale.
+  174      - Fixed L2 Writeback bug caused by using the memory partition address for 
+  175:       both the cache set index generation and for storing tag/block address. 
+  176        Caused writebacks from the L2 to have a different address than the
+  177        original memory request.
+  ...
+  197      - Fix for [Bug 43] Incorrect power results - new gpuwattch_gtx480.xml file
+  198      - Fix incorrect initialization of wire_length variable in cacti/wire.cc. 
+  199:       Caused incorrect per-access cache energy.
+  200         
+  201  Version 3.2.0 versus 3.1.2
+  ...
+  219    instructions in cuobjdump_to_ptxplus and started work on getting the brx
+  220    ptxplus instruction to work in gpgpusim.
+  221: - Modified the cache hierarchy (cache_t -> baseline_cache -> [read_only_cache,
+  222    data_cache, ...])
+  223: - Enabled configurable cache policies (write-back, write-through) and
+  224    implemented a write-allocate policy
+  225  - Added functional execution support for shared memory atomic operations
+  ...
+  258        instruction addresses in ptxplus are different than sass. They need to be
+  259        the same for the brx ptxplus instruction to work.
+  260:     - Fixed a bug where the L2 cache was modelling write-back for local writes
+  261        and write-evict for global writes - Should be write-back for all writes.
+  262      - Fixed bug that was causing undetermistic kernel end detection inside the 
+  ...
+  345  - Added missing support for -gpgpu_perfect_mem. When enabled this option models
+  346    a memory system with single cycle latency per memory request for accesses
+  347:   that miss in the L1 cache. Bandwidth is limited to one memory request issued
+  348    per SIMT core cycle. Note this means uncoalesced accessess will be slower
+  349    than coalesced accesses.
+  ...
+  362      - Fixed a bug that caused deadlock check to be omitted
+  363      - Updated the Fermi config files such that when an access misses the L1
+  364:       data cache, it allocates a line immediately before sending a data fetch
+  365        request out to the memory partition. 
+  366      - Changed the writeback arbitration among multiple clients in the LDST unit
+  ...
+  387    the operands was causing the instruction to behave incorrectly).
+  388  - Updated setup_environment script to handle host names with empty domains.
+  389: - Forced L2 cache line size to be greater than or equal to L1 cache line size
+  390  - L2 caches can now be disabled
+  391  - Increased Quadro config's L2 line size to 256B and total L2 size to 256kB
+  ...
+  413  - Fixed a bug where the PTX load and store instructions' input address register 
+  414    dependencies were not being registered with the scoreboard. 
+  415: - Updated how pending hits in data cache are reported (3.0.0 and 3.0.1 reports 
+  416:   the difference between the number of cache misses and pending hits). 
+  417  - Fixed a bug where a configuration with non power-of-two number of memory 
+  418    partitions can cause two different linear address to be aliased into the 
+  ...
+  428  - Removed out-of-date GPGPU-Sim documentation. This wil be updated in a 
+  429    later release.  Refer to Doxygen documentation and/or source code.
+  430: - Added prints for L1 data cache statistics
+  431  - SIMD width option removed from shader_core_pipeline_opt (was not used)
+  432  - Added read-to-precharge constraint in DRAM
+  ...
+  435  - Addresses returned by memory allocation are now 256 bytes aligned
+  436  - Ejection from the clock domain interface buffer between interconnection 
+  437:   network and L2 cache happens in the L2 clock domain instead of interconnect 
+  438    clock domain.
+  439  - Update OpenCL support to work with AMD OpenCL sample applications
+  440  - Bug fixes
+  441:    - Fixed the variation in instruction count seen under different cache
+  442       configurations on the same workload
+  443     - Fixed unnecessary flushing of instruction buffer
+  ...
+  455       pipeline at a time
+  456     - operand collector for modeling access to banked register files
+  457:    - prefetching texture cache model (Igehy et al., Graphics Hardware 1998)
+  458:    - updated data and constant cache models with updated MSHR model
+  459  - other changes I don't remember right now
+  460  
+
+/home/j/code/gpgpu-sim_distribution-dev/doc/doxygen/gpgpu-sim.doxygen:
+  285  TYPEDEF_HIDES_STRUCT   = NO
+  286  
+  287: # The SYMBOL_CACHE_SIZE determines the size of the internal cache use to
+  288  # determine which symbols to keep in memory and which to flush to disk.
+  289: # When the cache is full, less often used symbols will be written to disk.
+  290  # For small to medium size projects (<1000 input files) the default value is
+  291: # probably good enough. For larger projects a too small cache size can cause
+  292  # doxygen to be busy swapping symbols to and from disk most of the time
+  293  # causing a significant performance penalty.
+  294: # If the system has enough physical memory increasing the cache will improve the
+  295  # performance by keeping more symbols in memory. Note that the value works on
+  296  # a logarithmic scale so increasing the size by one will roughly double the
+  297: # memory usage. The cache size is given by this formula:
+  298  # 2^(16+SYMBOL_CACHE_SIZE). The valid range is 0..9, the default is 0,
+  299: # corresponding to a cache size of 2^16 = 65536 symbols
+  300  
+  301  SYMBOL_CACHE_SIZE      = 0
+
+/home/j/code/gpgpu-sim_distribution-dev/ispass2009-benchmarks/STO/md5_kernel.cu:
+  456  
+  457  
+  458:   /* Used to cache the shared memory index calculations, but testing showed 
+  459       that it has no performance effect. */
+  460    int x0 = SHARED_MEMORY_INDEX(0);
+  ...
+  683  
+  684  
+  685:   /* Used to cache the shared memory index calculations, but testing showed 
+  686       that it has no performance effect. */
+  687    int x0 = SHARED_MEMORY_INDEX(0);
+
+/home/j/code/gpgpu-sim_distribution-dev/src/abstract_hardware_model.h:
+  334      unsigned gpgpu_shmem_sizePrefShared;
+  335  
+  336:     // texture and constant cache line sizes (used to determine number of memory accesses)
+  337      unsigned gpgpu_cache_texl1_linesize;
+  338      unsigned gpgpu_cache_constl1_linesize;
+
+/home/j/code/gpgpu-sim_distribution-dev/src/cuda-sim/cuda-sim.cc:
+  148  
+  149     printf("GPGPU-Sim PTX:   texel size = %d\n", texel_size);
+  150:    printf("GPGPU-Sim PTX:   texture cache linesize = %d\n", m_function_model_config.get_texcache_linesize());
+  151     //first determine base Tx size for given linesize
+  152     switch (m_function_model_config.get_texcache_linesize()) {
+
+/home/j/code/gpgpu-sim_distribution-dev/src/cuda-sim/ptx_ir.h:
+ 1439  struct textureInfo {
+ 1440     unsigned int texel_size; //size in bytes, e.g. (channelDesc.x+y+z+w)/8
+ 1441:    unsigned int Tx,Ty; //tiling factor dimensions of layout of texels per 64B cache block
+ 1442     unsigned int Tx_numbits,Ty_numbits; //log2(T)
+ 1443     unsigned int texel_size_numbits; //log2(texel_size)
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/gpu-cache.cc:
+   26  // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   27  
+   28: #include "gpu-cache.h"
+   29  #include "stat-tool.h"
+   30  #include <assert.h>
+   31  
+   32  #define MAX_DEFAULT_CACHE_SIZE_MULTIBLIER 4
+   33: // used to allocate memory that is large enough to adapt the changes in cache size across kernels
+   34  
+   35  const char * cache_request_status_str(enum cache_request_status status) 
+   ..
+   71              set_index = (lower_xor ^ upper_xor);
+   72  
+   73:             // 48KB cache prepends the set_index with bit 12
+   74              if(m_nset == 64)
+   75                  set_index |= (addr & 0x1000) >> 7;
+   76  
+   77          }else{ /* Else incorrect number of sets for the hashing function */
+   78:             assert("\nGPGPU-Sim cache configuration error: The number of sets should be "
+   79                      "32 or 64 for the hashing set index function.\n" && 0);
+   80          }
+   ..
+  207      if ( all_reserved ) {
+  208          assert( m_config.m_alloc_policy == ON_MISS ); 
+  209:         return RESERVATION_FAIL; // miss and not enough space in cache to allocate on miss
+  210      }
+  211  
+  ...
+  231  {
+  232      m_access++;
+  233:     shader_cache_access_log(m_core_id, m_type_id, 0); // log accesses to cache
+  234      enum cache_request_status status = probe(addr,idx);
+  235      switch (status) {
+  ...
+  241      case MISS:
+  242          m_miss++;
+  243:         shader_cache_access_log(m_core_id, m_type_id, 1); // log cache misses
+  244          if ( m_config.m_alloc_policy == ON_MISS ) {
+  245              if( m_lines[idx].m_status == MODIFIED ) {
+  ...
+  252      case RESERVATION_FAIL:
+  253          m_res_fail++;
+  254:         shader_cache_access_log(m_core_id, m_type_id, 1); // log cache misses
+  255          break;
+  256      default:
+  ...
+  376  }
+  377  
+  378: /// Accept a new cache fill response: mark entry ready for processing
+  379  void mshr_table::mark_ready( new_addr_type block_addr, bool &has_atomic ){
+  380      assert( !busy() );
+  ...
+  428  void cache_stats::clear(){
+  429      ///
+  430:     /// Zero out all current cache statistics
+  431      ///
+  432      for(unsigned i=0; i<NUM_MEM_ACCESS_TYPE; ++i){
+  ...
+  443      ///
+  444      if(!check_valid(access_type, access_outcome))
+  445:         assert(0 && "Unknown cache access type or access outcome");
+  446  
+  447      m_stats[access_type][access_outcome]++;
+  ...
+  450  enum cache_request_status cache_stats::select_stats_status(enum cache_request_status probe, enum cache_request_status access) const {
+  451   ///
+  452:  /// This function selects how the cache access outcome should be counted. HIT_RESERVED is considered as a MISS
+  453   /// in the cores, however, it should be counted as a HIT_RESERVED in the caches.
+  454   ///
+  ...
+  465      ///
+  466      if(!check_valid(access_type, access_outcome))
+  467:         assert(0 && "Unknown cache access type or access outcome");
+  468  
+  469      return m_stats[access_type][access_outcome];
+  ...
+  475      ///
+  476      if(!check_valid(access_type, access_outcome))
+  477:         assert(0 && "Unknown cache access type or access outcome");
+  478  
+  479      return m_stats[access_type][access_outcome];
+  ...
+  513  void cache_stats::print_stats(FILE *fout, const char *cache_name) const{
+  514      ///
+  515:     /// Print out each non-zero cache statistic for every memory access type and status
+  516      /// "cache_name" defaults to "Cache_stats" when no argument is provided, otherwise
+  517      /// the provided name is used.
+  ...
+  566          for(unsigned status=0; status < num_access_status; ++status){
+  567              if(!check_valid((int)access_type[type], (int)access_status[status]))
+  568:                 assert(0 && "Unknown cache access type or access outcome");
+  569              total += m_stats[access_type[type]][access_status[status]];
+  570          }
+  ...
+  574  void cache_stats::get_sub_stats(struct cache_sub_stats &css) const{
+  575      ///
+  576:     /// Overwrites "css" with the appropriate statistics from this cache.
+  577      ///
+  578      struct cache_sub_stats t_css;
+  ...
+  665  }
+  666  
+  667: /// called every cache cycle to free up the ports 
+  668  void baseline_cache::bandwidth_management::replenish_port_bandwidth()
+  669  {
+  ...
+  991  }
+  992  
+  993: /// Access cache for read_only_cache: returns RESERVATION_FAIL if
+  994  // request could not be accepted (for any reason)
+  995  enum cache_request_status
+  ...
+ 1027  
+ 1028  //! A general function that takes the result of a tag_array probe
+ 1029: //  and performs the correspding functions based on the cache configuration
+ 1030  //  The access fucntion calls this function
+ 1031  enum cache_request_status
+ ....
+ 1039  {
+ 1040      // Each function pointer ( m_[rd/wr]_[hit/miss] ) is set in the
+ 1041:     // data_cache constructor to reflect the corresponding cache configuration
+ 1042      // options. Function pointers were used to avoid many long conditional
+ 1043:     // branches resulting from many cache configuration options.
+ 1044      cache_request_status access_status = probe_status;
+ 1045      if(wr){ // Write
+ ....
+ 1073  // of caching policies.
+ 1074  // Both the L1 and L2 override this function to provide a means of
+ 1075: // performing actions specific to each cache when such actions are implemnted.
+ 1076  enum cache_request_status
+ 1077  data_cache::access( new_addr_type addr,
+ ....
+ 1094  }
+ 1095  
+ 1096: /// This is meant to model the first level data cache in Fermi.
+ 1097  /// It is write-evict (global) or write-back (local) at the
+ 1098  /// granularity of individual blocks (Set by GPGPU-Sim configuration file)
+ ....
+ 1107  }
+ 1108  
+ 1109: // The l2 cache access function calls the base data_cache access
+ 1110  // implementation.  When the L2 needs to diverge from L1, L2 specific
+ 1111  // changes should be made here.
+ ....
+ 1122  /// return values: RESERVATION_FAIL if request could not be accepted
+ 1123  /// otherwise returns HIT_RESERVED or MISS; NOTE: *never* returns HIT
+ 1124: /// since unlike a normal CPU cache, a "HIT" in texture cache does not
+ 1125  /// mean the data is ready (still need to get through fragment fifo)
+ 1126  enum cache_request_status tex_cache::access( new_addr_type addr, mem_fetch *mf,
+ ....
+ 1151          cache_status = MISS;
+ 1152      } else {
+ 1153:         // the value *will* *be* in the cache already
+ 1154          cache_status = HIT_RESERVED;
+ 1155      }
+ ....
+ 1167          }
+ 1168      }
+ 1169:     // read ready lines from cache
+ 1170      if ( !m_fragment_fifo.empty() && !m_result_fifo.full() ) {
+ 1171          const fragment_entry &e = m_fragment_fifo.peek();
+ ....
+ 1195  }
+ 1196  
+ 1197: /// Place returning cache block into reorder buffer
+ 1198  void tex_cache::fill( mem_fetch *mf, unsigned time )
+ 1199  {
+ ....
+ 1214  void tex_cache::display_state( FILE *fp ) const
+ 1215  {
+ 1216:     fprintf(fp,"%s (texture cache) state:\n", m_name.c_str() );
+ 1217      fprintf(fp,"fragment fifo entries  = %u / %u\n",
+ 1218          m_fragment_fifo.size(), m_fragment_fifo.capacity() );
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/gpu-cache.h:
+  121  enum mshr_config_t {
+  122      TEX_FIFO,
+  123:     ASSOC // normal cache 
+  124  };
+  125  
+  ...
+  197          // detect invalid configuration 
+  198          if (m_alloc_policy == ON_FILL and m_write_policy == WRITE_BACK) {
+  199:             // A writeback cache with allocate-on-fill policy will inevitably lead to deadlock:  
+  200:             // The deadlock happens when an incoming cache-fill evicts a dirty
+  201              // line, generating a writeback request.  If the memory subsystem
+  202              // is congested, the interconnection network may not have
+  203              // sufficient buffer for the writeback request.  This stalls the
+  204:             // incoming cache-fill.  The stall may propagate through the memory
+  205              // subsystem back to the output port of the same core, creating a
+  206:             // deadlock where the wrtieback request and the incoming cache-fill
+  207              // are stalling each other.  
+  208:             assert(0 && "Invalid cache configuration: Writeback cache cannot allocate new line on fill. "); 
+  209          }
+  210  
+  ...
+  244      {
+  245          if(m_set_index_function != LINEAR_SET_FUNCTION){
+  246:             printf("\nGPGPU-Sim cache configuration error: Hashing or "
+  247                      "custom set index function selected in configuration "
+  248:                     "file for a cache that has not overloaded the set_index "
+  249                      "function\n");
+  250              abort();
+  ...
+  275      void exit_parse_error()
+  276      {
+  277:         printf("GPGPU-Sim uArch: cache configuration parsing error (%s)\n", m_config_string );
+  278          abort();
+  279      }
+  ...
+  307      };
+  308      unsigned m_result_fifo_entries;
+  309:     unsigned m_data_port_width; //< number of byte the cache can access per cycle 
+  310      enum set_index_function m_set_index_function; // Hash, linear, or custom set index function
+  311  
+  ...
+  377      unsigned m_access;
+  378      unsigned m_miss;
+  379:     unsigned m_pending_hit; // number of cache miss that hit a line that is allocated but not filled
+  380      unsigned m_res_fail;
+  381  
+  ...
+  386  
+  387      int m_core_id; // which shader core is using this
+  388:     int m_type_id; // what kind of cache is this (normal, texture, constant)
+  389  };
+  390  
+  ...
+  408      /// Returns true if cannot accept new fill responses
+  409      bool busy() const {return false;}
+  410:     /// Accept a new cache fill response: mark entry ready for processing
+  411      void mark_ready( new_addr_type block_addr, bool &has_atomic );
+  412      /// Returns true if ready accesses exist
+  ...
+  444  /***************************************************************** Caches *****************************************************************/
+  445  ///
+  446: /// Simple struct to maintain cache accesses, misses, pending hits, and reservation fails.
+  447  ///
+  448  struct cache_sub_stats{
+  ...
+  502  ///
+  503  /// Cache_stats
+  504: /// Used to record statistics for each cache.
+  505  /// Maintains a record of every 'mem_access_type' and its resulting
+  506  /// 'cache_request_status' : [mem_access_type][cache_request_status]
+  ...
+  537      virtual enum cache_request_status access( new_addr_type addr, mem_fetch *mf, unsigned time, std::list<cache_event> &events ) =  0;
+  538  
+  539:     // accessors for cache bandwidth availability 
+  540      virtual bool data_port_free() const = 0; 
+  541      virtual bool fill_port_free() const = 0; 
+  ...
+  545  bool was_read_sent( const std::list<cache_event> &events );
+  546  
+  547: /// Baseline cache
+  548  /// Implements common functions for read_only_cache and data_cache
+  549  /// Each subclass implements its own 'access' function
+  ...
+  593      /// Pop next ready access (does not include accesses that "HIT")
+  594      mem_fetch *next_access(){return m_mshrs.next_access();}
+  595:     // flash invalidate all entries in cache
+  596      void flush(){m_tag_array->flush();}
+  597      void print(FILE *fp, unsigned &accesses, unsigned &misses) const;
+  ...
+  609      }
+  610  
+  611:     // accessors for cache bandwidth availability 
+  612      bool data_port_free() const { return m_bandwidth_management.data_port_free(); } 
+  613      bool fill_port_free() const { return m_bandwidth_management.fill_port_free(); } 
+  ...
+  683          void use_fill_port(mem_fetch *mf); 
+  684  
+  685:         /// called every cache cycle to free up the ports 
+  686          void replenish_port_bandwidth(); 
+  687  
+  ...
+  700  };
+  701  
+  702: /// Read only cache
+  703  class read_only_cache : public baseline_cache {
+  704  public:
+  ...
+  706      : baseline_cache(name,config,core_id,type_id,memport,status){}
+  707  
+  708:     /// Access cache for read_only_cache: returns RESERVATION_FAIL if request could not be accepted (for any reason)
+  709      virtual enum cache_request_status access( new_addr_type addr, mem_fetch *mf, unsigned time, std::list<cache_event> &events );
+  710  
+  ...
+  716  };
+  717  
+  718: /// Data cache - Implements common functions for L1 and L2 data cache
+  719  class data_cache : public baseline_cache {
+  720  public:
+  ...
+  744          // Set write hit function
+  745          switch(m_config.m_write_policy){
+  746:         // READ_ONLY is now a separate cache class, config is deprecated
+  747          case READ_ONLY:
+  748              assert(0 && "Error: Writable Data_cache set as READ_ONLY\n");
+  ...
+  755              break;
+  756          default:
+  757:             assert(0 && "Error: Must set valid cache write policy\n");
+  758              break; // Need to set a write hit function
+  759          }
+  ...
+  764          case NO_WRITE_ALLOCATE: m_wr_miss = &data_cache::wr_miss_no_wa; break;
+  765          default:
+  766:             assert(0 && "Error: Must set valid cache write miss policy\n");
+  767              break; // Need to set a write miss function
+  768          }
+  ...
+  795  
+  796      //! A general function that takes the result of a tag_array probe
+  797:     //  and performs the correspding functions based on the cache configuration
+  798      //  The access fucntion calls this function
+  799      enum cache_request_status
+  ...
+  809      mem_fetch_allocator *m_memfetch_creator;
+  810  
+  811:     // Functions for data cache access
+  812      /// Sends write request to lower level memory (write or writeback)
+  813      void send_write_request( mem_fetch *mf,
+  ...
+  920  };
+  921  
+  922: /// This is meant to model the first level data cache in Fermi.
+  923  /// It is write-evict (global) or write-back (local) at
+  924  /// the granularity of individual blocks
+  ...
+  954  };
+  955  
+  956: /// Models second level shared cache with global write-back
+  957  /// and write-allocate policies
+  958  class l2_cache : public data_cache {
+  ...
+  974  /*****************************************************************************/
+  975  
+  976: // See the following paper to understand this cache model:
+  977  // 
+  978  // Igehy, et al., Prefetching in a Texture Cache Architecture, 
+  ...
+ 1004      /// return values: RESERVATION_FAIL if request could not be accepted
+ 1005      /// otherwise returns HIT_RESERVED or MISS; NOTE: *never* returns HIT
+ 1006:     /// since unlike a normal CPU cache, a "HIT" in texture cache does not
+ 1007      /// mean the data is ready (still need to get through fragment fifo)
+ 1008      enum cache_request_status access( new_addr_type addr, mem_fetch *mf, unsigned time, std::list<cache_event> &events );
+ 1009      void cycle();
+ 1010:     /// Place returning cache block into reorder buffer
+ 1011      void fill( mem_fetch *mf, unsigned time );
+ 1012      /// Are any (accepted) accesses that had to wait for memory now ready? (does not include accesses that "HIT")
+ ....
+ 1016      void display_state( FILE *fp ) const;
+ 1017  
+ 1018:     // accessors for cache bandwidth availability - stubs for now 
+ 1019      bool data_port_free() const { return true; }
+ 1020      bool fill_port_free() const { return true; }
+ ....
+ 1062          bool m_ready;
+ 1063          unsigned m_time; // which cycle did this entry become ready?
+ 1064:         unsigned m_index; // where in cache should block be placed?
+ 1065          mem_fetch *m_request;
+ 1066          new_addr_type m_block_addr;
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/gpu-misc.h:
+   30  #define GPU_MISC_H
+   31  
+   32: //enables a verbose printout of all L1 cache misses and all MSHR status changes 
+   33  //good for a single shader configuration
+   34  #define DEBUGL1MISS 0
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/gpu-sim.cc:
+   43  
+   44  #include <time.h>
+   45: #include "gpu-cache.h"
+   46  #include "gpu-misc.h"
+   47  #include "delayqueue.h"
+   ..
+  158  
+  159      option_parser_register(opp, "-l2_ideal", OPT_BOOL, &l2_ideal, 
+  160:                            "Use a ideal L2 cache that always hit",
+  161                             "0");
+  162      option_parser_register(opp, "-gpgpu_cache:dl2", OPT_CSTR, &m_L2_config.m_config_string, 
+  163:                    "unified banked L2 data cache config "
+  164                     " {<nsets>:<bsize>:<assoc>,<rep>:<wr>:<alloc>:<wr_alloc>,<mshr>:<N>:<merge>,<mq>}",
+  165                     "64:128:8,L:B:m:N,A:16:4,4");
+  166      option_parser_register(opp, "-gpgpu_cache:dl2_texture_only", OPT_BOOL, &m_L2_texure_only, 
+  167:                            "L2 cache used for texture only",
+  168                             "1");
+  169      option_parser_register(opp, "-gpgpu_n_mem", OPT_UINT32, &m_n_mem, 
+  ...
+  215                     "1024:32");
+  216      option_parser_register(opp, "-gpgpu_tex_cache:l1", OPT_CSTR, &m_L1T_config.m_config_string, 
+  217:                    "per-shader L1 texture cache  (READ-ONLY) config "
+  218                     " {<nsets>:<bsize>:<assoc>,<rep>:<wr>:<alloc>:<wr_alloc>,<mshr>:<N>:<merge>,<mq>:<rf>}",
+  219                     "8:128:5,L:R:m:N,F:128:4,128:2");
+  220      option_parser_register(opp, "-gpgpu_const_cache:l1", OPT_CSTR, &m_L1C_config.m_config_string, 
+  221:                    "per-shader L1 constant memory cache  (READ-ONLY) config "
+  222                     " {<nsets>:<bsize>:<assoc>,<rep>:<wr>:<alloc>:<wr_alloc>,<mshr>:<N>:<merge>,<mq>} ",
+  223                     "64:64:2,L:R:f:N,A:2:32,4" );
+  224      option_parser_register(opp, "-gpgpu_cache:il1", OPT_CSTR, &m_L1I_config.m_config_string, 
+  225:                    "shader L1 instruction cache config "
+  226                     " {<nsets>:<bsize>:<assoc>,<rep>:<wr>:<alloc>:<wr_alloc>,<mshr>:<N>:<merge>,<mq>} ",
+  227                     "4:256:4,L:R:f:N,A:2:32,4" );
+  228      option_parser_register(opp, "-gpgpu_cache:dl1", OPT_CSTR, &m_L1D_config.m_config_string,
+  229:                    "per-shader L1 data cache config "
+  230                     " {<nsets>:<bsize>:<assoc>,<rep>:<wr>:<alloc>:<wr_alloc>,<mshr>:<N>:<merge>,<mq> | none}",
+  231                     "none" );
+  232      option_parser_register(opp, "-gpgpu_cache:dl1PrefL1", OPT_CSTR, &m_L1D_config.m_config_stringPrefL1,
+  233:                    "per-shader L1 data cache config "
+  234                     " {<nsets>:<bsize>:<assoc>,<rep>:<wr>:<alloc>:<wr_alloc>,<mshr>:<N>:<merge>,<mq> | none}",
+  235                     "none" );
+  236      option_parser_register(opp, "-gpgpu_cache:dl1PrefShared", OPT_CSTR, &m_L1D_config.m_config_stringPrefShared,
+  237:                    "per-shader L1 data cache config "
+  238                     " {<nsets>:<bsize>:<assoc>,<rep>:<wr>:<alloc>:<wr_alloc>,<mshr>:<N>:<merge>,<mq> | none}",
+  239                     "none" );
+  240      option_parser_register(opp, "-gmem_skip_L1D", OPT_BOOL, &gmem_skip_L1D, 
+  241:                    "global memory access skip L1D cache (implements -Xptxas -dlcm=cg, default=no skip)",
+  242                     "0");
+  243  
+  244      option_parser_register(opp, "-gpgpu_perfect_mem", OPT_BOOL, &gpgpu_perfect_mem, 
+  245:                  "enable perfect memory mode (no cache miss)",
+  246                   "0");
+  247      option_parser_register(opp, "-n_regfile_gating_group", OPT_UINT32, &n_regfile_gating_group,
+  ...
+  406                 "1");
+  407     option_parser_register(opp, "-gpgpu_flush_l1_cache", OPT_BOOL, &gpgpu_flush_l1_cache,
+  408:                 "Flush L1 cache at the end of each kernel call",
+  409                  "0");
+  410     option_parser_register(opp, "-gpgpu_flush_l2_cache", OPT_BOOL, &gpgpu_flush_l2_cache,
+  411:                    "Flush L2 cache at the end of each kernel call",
+  412                     "0");
+  413  
+  ...
+ 1033        m_memory_partition_unit[i]->print(stdout);
+ 1034  
+ 1035:    // L2 cache stats
+ 1036     if(!m_memory_config->m_L2_config.disabled()){
+ 1037         cache_stats l2_stats;
+ ....
+ 1042         total_l2_css.clear();
+ 1043  
+ 1044:        printf("\n========= L2 cache stats =========\n");
+ 1045         for (unsigned i=0;i<m_memory_config->m_n_mem_sub_partition;i++){
+ 1046             m_memory_sub_partition[i]->accumulate_L2cache_stats(l2_stats);
+ ....
+ 1444        for (unsigned i=0;i<m_memory_config->m_n_mem_sub_partition;i++) {
+ 1445            //move memory request from interconnect into memory partition (if not backed up)
+ 1446:           //Note:This needs to be called in DRAM clock domain if there is no L2 cache in the system
+ 1447            if ( m_memory_sub_partition[i]->full() ) {
+ 1448               gpu_stall_dramfull++;
+ ....
+ 1467  
+ 1468     if (clock_mask & CORE) {
+ 1469:       // L1 cache + shader core pipeline stages
+ 1470        m_power_stats->pwr_mem_stat->core_cache_stats[CURRENT_STAT_IDX].clear();
+ 1471        for (unsigned i=0;i<m_shader_config->n_simt_clusters;i++) {
+ ....
+ 1474                 *active_sms+=m_cluster[i]->get_n_active_sms();
+ 1475           }
+ 1476:          // Update core icnt/cache stats for GPUWattch
+ 1477           m_cluster[i]->get_icnt_stats(m_power_stats->pwr_mem_stat->n_simt_to_mem[CURRENT_STAT_IDX][i], m_power_stats->pwr_mem_stat->n_mem_to_simt[CURRENT_STAT_IDX][i]);
+ 1478           m_cluster[i]->get_cache_stats(m_power_stats->pwr_mem_stat->core_cache_stats[CURRENT_STAT_IDX]);
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/l2cache.cc:
+   36  #include "mem_fetch.h"
+   37  #include "dram.h"
+   38: #include "gpu-cache.h"
+   39  #include "histogram.h"
+   40  #include "l2cache.h"
+   ..
+  339         if ( m_L2cache->access_ready() && !m_L2_icnt_queue->full() ) {
+  340             mem_fetch *mf = m_L2cache->next_access();
+  341:            if(mf->get_access_type() != L2_WR_ALLOC_R){ // Don't pass write allocate read request back to upper level cache
+  342         mf->set_reply();
+  343         mf->set_status(IN_PARTITION_L2_TO_ICNT_QUEUE,gpu_sim_cycle+gpu_tot_sim_cycle);
+  ...
+  387                  if ( status == HIT ) {
+  388                      if( !write_sent ) {
+  389:                         // L2 cache replies
+  390                          assert(!read_sent);
+  391                          if( mf->get_access_type() == L1_WRBK_ACC ) {
+  ...
+  403                      }
+  404                  } else if ( status != RESERVATION_FAIL ) {
+  405:                     // L2 cache accepted request
+  406                      m_icnt_L2_queue->pop();
+  407                  } else {
+  408                      assert(!write_sent);
+  409                      assert(!read_sent);
+  410:                     // L2 cache lock-up: will try again next cycle
+  411                  }
+  412              }
+  ...
+  603  void memory_sub_partition::visualizer_print( gzFile visualizer_file )
+  604  {
+  605:     // TODO: Add visualizer stats for L2 cache 
+  606  }
+  607  
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/l2cache.h:
+  198     fifo_pipeline<mem_fetch> *m_L2_dram_queue;
+  199     fifo_pipeline<mem_fetch> *m_dram_L2_queue;
+  200:    fifo_pipeline<mem_fetch> *m_L2_icnt_queue; // L2 cache hit response queue
+  201  
+  202     class mem_fetch *L2dramout; 
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/mem_latency_stat.cc:
+   31  #include "gpu-sim.h"
+   32  #include "gpu-misc.h"
+   33: #include "gpu-cache.h"
+   34  #include "shader.h"
+   35  #include "mem_fetch.h"
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/mem_latency_stat.h:
+   76     unsigned int **totalbankreads; //bankreads[dram chip id][bank id]
+   77     unsigned int **totalbankaccesses; //bankaccesses[dram chip id][bank id]
+   78:    unsigned int *num_MCBs_accessed; //tracks how many memory controllers are accessed whenever any thread in a warp misses in cache
+   79     unsigned int *position_of_mrq_chosen; //position of mrq in m_queue chosen 
+   80     
+   ..
+   82  
+   83  
+   84:    // L2 cache stats
+   85     unsigned int *L2_cbtoL2length;
+   86     unsigned int *L2_cbtoL2writelength;
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/power_interface.cc:
+   59     wrapper->set_regfile_power(power_stats->get_regfile_reads(), power_stats->get_regfile_writes(), power_stats->get_non_regfile_operands());
+   60  
+   61:    //Instruction cache stats
+   62     wrapper->set_icache_power(power_stats->get_inst_c_hits(), power_stats->get_inst_c_misses());
+   63  
+   64:    //Constant Cache, shared memory, texture cache
+   65     wrapper->set_ccache_power(power_stats->get_constant_c_hits(), power_stats->get_constant_c_misses());
+   66     wrapper->set_tcache_power(power_stats->get_texture_c_hits(), power_stats->get_texture_c_misses());
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/power_stat.cc:
+  119      fprintf(fout, "Total memory controller writes: %u\n", total_mem_writes);
+  120  
+  121:     fprintf(fout, "Core cache stats:\n");
+  122      core_cache_stats->print_stats(fout);
+  123:     fprintf(fout, "L2 cache stats:\n");
+  124      l2_cache_stats->print_stats(fout);
+  125  }
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/shader.cc:
+  427             gpu_stall_shd_mem_breakdown[L_MEM_LD][BK_CONF] + 
+  428             gpu_stall_shd_mem_breakdown[L_MEM_ST][BK_CONF]   
+  429:            ); // coalescing stall at data cache 
+  430     fprintf(fout, "gpgpu_stall_shd_mem[gl_mem][coal_stall] = %d\n", 
+  431             gpu_stall_shd_mem_breakdown[G_MEM_LD][COAL_STALL] + 
+  ...
+  433             gpu_stall_shd_mem_breakdown[L_MEM_LD][COAL_STALL] + 
+  434             gpu_stall_shd_mem_breakdown[L_MEM_ST][COAL_STALL]    
+  435:            ); // coalescing stall + bank conflict at data cache 
+  436     fprintf(fout, "gpgpu_stall_shd_mem[gl_mem][data_port_stall] = %d\n", 
+  437             gpu_stall_shd_mem_breakdown[G_MEM_LD][DATA_PORT_STALL] + 
+  ...
+  439             gpu_stall_shd_mem_breakdown[L_MEM_LD][DATA_PORT_STALL] + 
+  440             gpu_stall_shd_mem_breakdown[L_MEM_ST][DATA_PORT_STALL]    
+  441:            ); // data port stall at data cache 
+  442     fprintf(fout, "gpgpu_stall_shd_mem[g_mem_ld][mshr_rc] = %d\n", gpu_stall_shd_mem_breakdown[G_MEM_LD][MSHR_RC_FAIL]);
+  443     fprintf(fout, "gpgpu_stall_shd_mem[g_mem_ld][icnt_rc] = %d\n", gpu_stall_shd_mem_breakdown[G_MEM_LD][ICNT_RC_FAIL]);
+  ...
+  555      gzprintf(visualizer_file,"\n");
+  556  
+  557:     // overall cache miss rates
+  558      gzprintf(visualizer_file, "gpgpu_n_cache_bkconflict: %d\n", gpgpu_n_cache_bkconflict);
+  559      gzprintf(visualizer_file, "gpgpu_n_shmem_bkconflict: %d\n", gpgpu_n_shmem_bkconflict);     
+  ...
+  625          }
+  626          else {
+  627:             // find an active warp with space in instruction buffer that is not already waiting on a cache miss
+  628:             // and get next 1-2 instructions from i-cache...
+  629              for( unsigned i=0; i < m_config->max_warps_per_shader; i++ ) {
+  630                  unsigned warp_id = (m_last_warp_fetched+1+i) % m_config->max_warps_per_shader;
+  ...
+  649                  }
+  650  
+  651:                 // this code fetches instructions from the i-cache or generates memory requests
+  652                  if( !m_warp[warp_id].functional_done() && !m_warp[warp_id].imiss_pending() && m_warp[warp_id].ibuffer_empty() ) {
+  653                      address_type pc  = m_warp[warp_id].get_pc();
+  ...
+ 1229  
+ 1230  void ldst_unit::get_cache_stats(cache_stats &cs) {
+ 1231:     // Adds stats to 'cs' from each cache
+ 1232      if(m_L1D)
+ 1233          cs += m_L1D->get_stats();
+ ....
+ 1338  
+ 1339  mem_stage_stall_type
+ 1340: ldst_unit::process_cache_access( cache_t* cache,
+ 1341                                   new_addr_type address,
+ 1342                                   warp_inst_t &inst,
+ ....
+ 1375  }
+ 1376  
+ 1377: mem_stage_stall_type ldst_unit::process_memory_access_queue( cache_t *cache, warp_inst_t &inst )
+ 1378  {
+ 1379      mem_stage_stall_type result = NO_RC_FAIL;
+ ....
+ 1381          return result;
+ 1382  
+ 1383:     if( !cache->data_port_free() ) 
+ 1384          return DATA_PORT_STALL; 
+ 1385  
+ ....
+ 1387      mem_fetch *mf = m_mf_allocator->alloc(inst,inst.accessq_back());
+ 1388      std::list<cache_event> events;
+ 1389:     enum cache_request_status status = cache->access(mf->get_addr(),mf,gpu_sim_cycle+gpu_tot_sim_cycle,events);
+ 1390:     return process_cache_access( cache, mf->get_addr(), inst, events, mf, status );
+ 1391  }
+ 1392  
+ ....
+ 1439         bypassL1D = true; 
+ 1440     } else if (inst.space.is_global()) { // global memory access 
+ 1441:        // skip L1 cache if the option is enabled
+ 1442         if (m_core->get_config()->gmem_skip_L1D) 
+ 1443             bypassL1D = true; 
+ ....
+ 1445  
+ 1446     if( bypassL1D ) {
+ 1447:        // bypass L1 cache
+ 1448         unsigned control_size = inst.is_store() ? WRITE_PACKET_SIZE : READ_PACKET_SIZE;
+ 1449         unsigned size = access.get_size() + control_size;
+ ....
+ 1492  
+ 1493  void ldst_unit::flush(){
+ 1494:  // Flush L1D cache
+ 1495   m_L1D->flush();
+ 1496  }
+ ....
+ 1778              }
+ 1779              break;
+ 1780:         case 2: // const cache response
+ 1781              if( m_L1C->access_ready() ) {
+ 1782                  mem_fetch *mf = m_L1C->next_access();
+ ....
+ 1869                 delete mf;
+ 1870             } else {
+ 1871:                assert( !mf->get_is_write() ); // L1 cache is write evict, allocate line on load miss only
+ 1872  
+ 1873                 bool bypassL1D = false; 
+ ....
+ 2075          total_css.clear();
+ 2076          css.clear();
+ 2077:         fprintf(fout, "\n========= Core cache stats =========\n");
+ 2078          fprintf(fout, "L1I_cache:\n");
+ 2079          for ( unsigned i = 0; i < m_shader_config->n_simt_clusters; ++i ) {
+ ....
+ 2515  }
+ 2516  
+ 2517: // Flushes all content of the cache to memory
+ 2518  
+ 2519  void shader_core_ctx::cache_flush()
+ ....
+ 2876  
+ 2877  void shader_core_ctx::get_cache_stats(cache_stats &cs){
+ 2878:     // Adds stats from each cache to 'cs'
+ 2879      cs += m_L1I->get_stats(); // Get L1I stats
+ 2880      m_ldst_unit->get_cache_stats(cs); // Get L1D, L1C, L1T stats
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/shader.h:
+   52  #include "mem_fetch.h"
+   53  #include "stats.h"
+   54: #include "gpu-cache.h"
+   55  #include "traffic_breakdown.h"
+   56  
+   ..
+ 1162     bool memory_cycle( warp_inst_t &inst, mem_stage_stall_type &rc_fail, mem_stage_access_type &fail_type);
+ 1163  
+ 1164:    virtual mem_stage_stall_type process_cache_access( cache_t* cache,
+ 1165                                                        new_addr_type address,
+ 1166                                                        warp_inst_t &inst,
+ ....
+ 1168                                                        mem_fetch *mf,
+ 1169                                                        enum cache_request_status status );
+ 1170:    mem_stage_stall_type process_memory_access_queue( cache_t *cache, warp_inst_t &inst );
+ 1171  
+ 1172     const memory_config *m_memory_config;
+ ....
+ 1177     unsigned m_tpc;
+ 1178  
+ 1179:    tex_cache *m_L1T; // texture cache
+ 1180:    read_only_cache *m_L1C; // constant cache
+ 1181:    l1_cache *m_L1D; // data cache
+ 1182     std::map<unsigned/*warp_id*/, std::map<unsigned/*regnum*/,unsigned/*count*/> > m_pending_writes;
+ 1183     std::list<mem_fetch*> m_response_fifo;
+ ....
+ 1295      mutable l1d_cache_config m_L1D_config;
+ 1296  
+ 1297:     bool gmem_skip_L1D; // on = global memory access always skip the L1 cache 
+ 1298      
+ 1299      bool gpgpu_dwf_reg_bankconflict;
+ ....
+ 1817      
+ 1818      // fetch
+ 1819:     read_only_cache *m_L1I; // instruction cache
+ 1820      int  m_last_warp_fetched;
+ 1821  
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/stat-tool.cc:
+  362  
+  363  /////////////////////////////////////////////////////////////////////////////////////
+  364: // per-shadercore cache-miss logger
+  365  /////////////////////////////////////////////////////////////////////////////////////
+  366  
+  ...
+  379  void shader_cache_access_create( int n_loggers, int n_types, unsigned long long  logging_interval)
+  380  {
+  381:    // There are different type of cache (x2 for recording accesses and misses)
+  382     s_cache_access_logger.assign(n_loggers, 
+  383                                  linear_histogram_logger(n_types * 2, logging_interval, "ShdrCacheMiss"));
+
+/home/j/code/gpgpu-sim_distribution-dev/src/gpgpu-sim/visualizer.cc:
+   36  //#include "../../../mcpat/processor.h"
+   37  #include "stat-tool.h"
+   38: #include "gpu-cache.h"
+   39  
+   40  #include <time.h>
+
+192 matches across 20 files
