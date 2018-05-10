@@ -1,0 +1,216 @@
+# functional simulator specification
+-gpgpu_ptx_instruction_classification 0
+-gpgpu_ptx_sim_mode 0
+-gpgpu_ptx_force_max_capability 20 
+
+
+# SASS execution (only supported with CUDA >= 4.0)
+-gpgpu_ptx_convert_to_ptxplus 0
+-gpgpu_ptx_save_converted_ptxplus 0
+
+# high level architecture configuration
+-gpgpu_n_clusters 30
+-gpgpu_mode3 0
+-gpgpu_num_groups 2
+
+-tlb_size 64
+#-tlb_levels 2
+-tlb_levels 4
+
+-tlb_prefetch 0
+
+-pw_cache_enable 0
+-pw_cache_num_ports 4
+-pw_cache_latency 85
+
+#-l2_tlb_entries 4
+-l2_tlb_entries 1048
+#-l2_tlb_ways 2
+-l2_tlb_ways 16
+
+#-tlb_cache_part 1
+-tlb_cache_part 0
+
+#Disable this to make simulation a lot faster
+-get_shader_warp_stat 0
+
+-tlb_core_index 0
+
+#BASELINE no TLB bypassing
+-tlb_lookup_bypass 0
+# MASK TLB Bypassing
+#-tlb_lookup_bypass 6
+#-tlb_lookup_bypass 1
+#Number of initial tokens
+-tlb_bypass_initial_tokens 80
+#How big to change number of tokens (in miss percentage)
+-tlb_miss_rate_ratio 2
+#TLB bypass stat reset every X cycles
+-tlb_stat_resets 10000
+#Maximum TLB miss allowed before handing off tokens (in percent)
+-max_tlb_miss 10 
+
+#Partitioning L2 cache ways for TLB-data
+#-tlb_cache_part 1
+-tlb_cache_part 0
+#-l2data_tlb_way_reset 100000
+
+#For TLB partitioning, at which max level gets to use this special way
+-tlb_prio_max_level 2
+#-tlb_prio_max_level 4
+
+#This is for L2 Shared cache bypassing, 0 = no bypassing, 1 = static bypassing (fixed level), 2 = dynamic bypassing
+-tlb_bypass_enabled 0
+#-tlb_bypass_enabled 1
+# (if bypass_enabled == 1, bypass which level) For PT_walk, the second level onward will bypass L2
+-tlb_bypass_level 4
+
+#FR-FCFS
+-dram_scheduling_policy 0
+
+#MASK memory scheduling design (baseline = 0, MASK = 8)
+#-tlb_dram_aware 0
+#Prioritize TLB-relate request of level > n
+#-tlb_dram_aware 1
+#-tlb_high_prio_level 1
+#Always prioritize TLB-relate request
+#-tlb_dram_aware 2
+#Always de-prioritize TLB-relate request
+#-tlb_dram_aware 3
+#Always prioritize app N
+#-tlb_dram_aware 4
+#-dram_always_prioritize_app 1
+-tlb_dram_aware 8
+-dram_switch_threshold 1000
+
+#For the virtual address, which portion is mapped to which level of the page table lookup
+#-va_mask 11111111111111111111000000000000
+#-va_mask 11111222223333344444000000000000
+-va_mask 44444333332222211111000000000000
+#-va_mask 11111122222222333333000000000000
+#-va_mask 11111111122222222222000000000000
+#-va_mask 11111222220000000000000000000000
+#-va_mask 11111111111111111111000000000000
+
+#-page_size 22
+-page_size 12
+# How many instructions to be simulated (500M gets a consistent result with full application, good value for testing)
+-gpgpu_max_insn 500000000
+
+
+
+-gpgpu_n_cores_per_cluster 1
+-gpgpu_n_mem 6
+
+# Fermi clock domains
+#-gpgpu_clock_domains <Core Clock>:<Interconnect Clock>:<L2 Clock>:<DRAM Clock>
+# In Fermi, each pipeline has 16 execution units, so the Core clock needs to be divided
+# by 2. (GPGPU-Sim simulates a warp (32 threads) in a single cycle). 1400/2 = 700
+-gpgpu_clock_domains 700.0:1400.0:700.0:924.0
+
+# shader core pipeline config
+-gpgpu_shader_registers 32768
+
+# This implies a maximum of 48 warps/SM
+-gpgpu_shader_core_pipeline 1536:32 
+-gpgpu_shader_cta 8
+-gpgpu_simd_model 1 
+
+# Pipeline widths and number of FUs
+# ID_OC_SP,ID_OC_SFU,ID_OC_MEM,OC_EX_SP,OC_EX_SFU,OC_EX_MEM,EX_WB
+-gpgpu_pipeline_widths 2,1,1,2,1,1,2
+-gpgpu_num_sp_units 2
+-gpgpu_num_sfu_units 1
+
+# Instruction latencies and initiation intervals
+# "ADD,MAX,MUL,MAD,DIV"
+-ptx_opcode_latency_int 4,13,4,5,145
+-ptx_opcode_initiation_int 1,2,2,1,8
+-ptx_opcode_latency_fp 4,13,4,5,39
+-ptx_opcode_initiation_fp 1,2,1,1,4
+-ptx_opcode_latency_dp 8,19,8,8,330
+-ptx_opcode_initiation_dp 8,16,8,8,130
+
+# In Fermi, the cache and shared memory can be configured to 16kb:48kb(default) or 48kb:16kb
+# <nsets>:<bsize>:<assoc>,<rep>:<wr>:<alloc>:<wr_alloc>,<mshr>:<N>:<merge>,<mq>:**<fifo_entry>
+# ** Optional parameter - Required when mshr_type==Texture Fifo
+-gpgpu_cache:dl1  32:128:4,L:L:m:N,A:128:8,8
+-gpgpu_shmem_size 49152
+
+# The alternative configuration for fermi in case cudaFuncCachePreferL1 is selected
+#-gpgpu_cache:dl1  64:128:6,L:L:m:N,A:32:8,8
+#-gpgpu_shmem_size 16384
+
+# 64 sets, each 128 bytes 32-way for each memory partition. This gives 786KB L2 cache
+-gpgpu_cache:dl2 64:128:32,L:T:f:W,A:128:4,4
+-gpgpu_cache:dl2_texture_only 0 
+
+-gpgpu_cache:il1 4:128:4,L:R:f:N,A:2:32,4
+-gpgpu_tex_cache:l1 4:128:24,L:R:m:N,F:128:4,128:2
+-gpgpu_const_cache:l1 64:64:2,L:R:f:N,A:2:32,4
+
+# enable operand collector 
+-gpgpu_operand_collector_num_units_sp 6
+-gpgpu_operand_collector_num_units_sfu 8
+-gpgpu_operand_collector_num_in_ports_sp 2
+-gpgpu_operand_collector_num_out_ports_sp 2
+-gpgpu_num_reg_banks 16
+
+# shared memory bankconflict detection 
+-gpgpu_shmem_num_banks 32
+-gpgpu_shmem_limited_broadcast 0
+-gpgpu_shmem_warp_parts 1
+
+-gpgpu_max_insn_issue_per_warp 1
+
+# interconnection
+-network_mode 1 
+-inter_config_file config_fermi_islip.icnt
+
+# dram model config
+-gpgpu_dram_scheduler 1 
+-gpgpu_frfcfs_dram_sched_queue_size 256 
+-gpgpu_dram_return_queue_size 256
+
+-gpgpu_n_mem_per_ctrlr 1
+-gpgpu_dram_buswidth 4
+-gpgpu_dram_burst_length 8
+-dram_data_command_freq_ratio 4  # GDDR5 is QDR 
+-gpgpu_mem_address_mask 1
+-gpgpu_mem_addr_mapping dramid@8;00000000.00000000.00000000.00000000.0000RRRR.RRRRRRRR.RBBBCCCC.CCSSSSSS
+
+# GDDR5 timing from hynix H5GQ1H24AFR
+# to disable bank groups, set nbkgrp to 1 and tCCDL and tRTPL to 0
+-gpgpu_dram_timing_opt "nbk=8:CCD=2:RRD=6:RCD=12:RAS=28:RP=12:RC=40:
+                        CL=12:WL=4:CDLR=5:WR=12:nbkgrp=4:CCDL=3:RTPL=2"
+
+# Fermi has two schedulers per core
+-gpgpu_num_sched_per_core 2
+# Two Level Scheduler with active and pending pools
+#-gpgpu_scheduler two_level_active:6:0:1
+# Loose round robbin scheduler
+#-gpgpu_scheduler lrr
+# Greedy then oldest scheduler
+-gpgpu_scheduler gto
+
+# stat collection
+-gpgpu_memlatency_stat 14 
+-gpgpu_runtime_stat 1000
+-enable_ptx_file_line_stats 1
+-visualizer_enabled 0
+
+# power model configs
+-power_simulation_enabled 0
+-gpuwattch_xml_file gpuwattch_gtx480.xml
+
+#-gpu_app_wise_locality 1
+#-gpu_penalty_modeled 0 
+
+#-gpgpu_app_prio 0
+#-gpgpu_debug_test 0
+#-gpgpu_debug_test_mulapp 0
+
+# tracing functionality
+#-trace_enabled 1
+#-trace_components WARP_SCHEDULER,SCOREBOARD
+#-trace_sampling_core 0
